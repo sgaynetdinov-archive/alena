@@ -2,6 +2,7 @@ import asyncio
 
 from .cache import get_cache, CacheKeyNotFound
 from .task import Task
+from .status import Status
 
 cache = get_cache()
 
@@ -29,8 +30,17 @@ async def status_task(task_uuid):
         return "не найдено"
 
 @command("result_task")
-def result_task():
-    pass
+async def result_task(task_uuid):
+    try:
+        task_as_dict = await cache.get(task_uuid)
+        task = Task.from_dict(task_as_dict)
+    except CacheKeyNotFound:
+        return "не найдено"
+    
+    if task.status != Status.COMPLETED:
+        return "не найдено"
+
+    return task.result
 
 async def is_valid_command(command_name):
     if command_name in command_items:

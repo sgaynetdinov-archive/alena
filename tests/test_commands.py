@@ -1,6 +1,6 @@
 import pytest
 
-from server import is_valid_command, status_task, get_cache, Task, Status
+from server import is_valid_command, status_task, get_cache, Task, Status, result_task
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("command_name,expected",[
@@ -27,3 +27,26 @@ async def test_status_task():
     task_uuid = await cache.add(task.as_dict())
 
     assert Status.QUEUE == await status_task(task_uuid)
+
+
+@pytest.mark.asyncio
+async def test_result_task__task_uuid_not_found():
+    got = await result_task('100500')
+    assert got == "не найдено" 
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("status, expected", [
+    (Status.QUEUE, "не найдено"),
+    (Status.IN_PROGRESS, "не найдено"),
+    (Status.COMPLETED, "100500"),
+])
+async def test_result_task__check_status(status, expected):
+    task = Task('string', status, expected)
+    cache = get_cache()
+    task_uuid = await cache.add(task.as_dict())
+
+    got = await result_task(task_uuid)
+
+    assert got == expected
+
