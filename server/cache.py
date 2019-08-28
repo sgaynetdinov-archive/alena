@@ -6,6 +6,8 @@ class CacheKeyNotFound(Exception):
 
 
 class CacheAbstract:
+    instance = None
+
     async def add(self, data):
         raise NotImplemented
 
@@ -30,4 +32,11 @@ class Cache(CacheAbstract):
             return self._cache[key]
         except KeyError:
             raise CacheKeyNotFound
+
+
+async def get_cache():
+    if not Cache.instance:
+        Cache.instance = Cache() 
+
+    return Cache.instance
 
