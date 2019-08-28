@@ -1,6 +1,6 @@
 import pytest
 
-from server import is_valid_command, status_task, get_cache
+from server import is_valid_command, status_task, get_cache, Task, Status
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("command_name,expected",[
@@ -22,7 +22,8 @@ async def test_status_task__task_uuid_not_found():
 
 @pytest.mark.asyncio
 async def test_status_task():
+    task = Task('reversed string', Status.QUEUE)
     cache = get_cache()
-    task_uuid = await cache.add('100500')
+    task_uuid = await cache.add(task.as_dict())
 
-    assert '100500' == await status_task(task_uuid)
+    assert Status.QUEUE == await status_task(task_uuid)
