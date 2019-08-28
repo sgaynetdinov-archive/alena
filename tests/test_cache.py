@@ -9,7 +9,7 @@ def cache():
 
 @pytest.mark.asyncio
 async def test_cache(cache):
-    with patch('server.cache.Cache._get_key') as mock:
+    with patch('server.Cache._get_key') as mock:
         mock.return_value = '100500'
 
         assert await cache.add('Payload') == mock()
@@ -22,7 +22,6 @@ async def test_not_found_key(cache):
         await cache.get('100500')
 
 
-@pytest.mark.asyncio
-async def test_get_cache_is_singelton():
-    cache = await get_cache()
-    assert cache is await get_cache() 
+def test_get_cache_is_singelton():
+    cache = get_cache()
+    assert cache is get_cache() 

@@ -34,7 +34,7 @@ class Cache(CacheAbstract):
             raise CacheKeyNotFound
 
 
-async def get_cache():
+def get_cache():
     if not Cache.instance:
         Cache.instance = Cache() 
 
