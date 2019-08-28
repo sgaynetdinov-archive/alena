@@ -1,5 +1,9 @@
 import asyncio
 
+from .cache import get_cache, CacheKeyNotFound
+
+cache = get_cache()
+
 command_items = {}
 
 def command(command_name):
@@ -15,8 +19,11 @@ def create_task():
     pass
 
 @command("status_task")
-def status_task():
-    pass
+async def status_task(task_uuid):
+    try:
+        return await cache.get(task_uuid)
+    except CacheKeyNotFound:
+        return "не найдено"
 
 @command("result_task")
 def result_task():
