@@ -1,5 +1,4 @@
 import pytest
-from unittest.mock import patch
 
 from server.cache import Cache, CacheKeyNotFound, get_cache
 
@@ -9,11 +8,8 @@ def cache():
 
 @pytest.mark.asyncio
 async def test_cache(cache):
-    with patch('server.cache.Cache._get_key') as mock:
-        mock.return_value = '100500'
-
-        assert await cache.add('Payload') == mock()
-        assert await cache.get('100500') == 'Payload'
+    assert await cache.add('100500', 'Payload') == '100500'
+    assert await cache.get('100500') == 'Payload'
 
 
 @pytest.mark.asyncio

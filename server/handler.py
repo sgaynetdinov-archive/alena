@@ -1,4 +1,5 @@
 import asyncio
+from uuid import uuid4
 
 from .cache import get_cache, CacheKeyNotFound
 from .task import Task
@@ -24,17 +25,18 @@ async def create_task(command):
     if command not in command_items:
         return "неверная команда"
 
-    task = Task(command=command, status=Status.QUEUE)
-    task_uuid = await cache.add(task.as_dict())
-    await queue.put(task.as_dict())
+    key = str(uuid4())
+    task = Task(command=command, status=Status.QUEUE.value, uuid=key)
+    task_uuid = await cache.add(key, task.as_json())
+    await queue.put(task.as_json())
     return task_uuid
 
 @register_handler("status_task")
 async def status_task(task_uuid):
     try:
         task_as_dict = await cache.get(task_uuid)
-        task = Task.from_dict(task_as_dict)
-        return task.status.value
+        task = Task.from_json(task_as_dict)
+        return task.status
     except CacheKeyNotFound:
         return "не найдено"
 
@@ -42,11 +44,11 @@ async def status_task(task_uuid):
 async def result_task(task_uuid):
     try:
         task_as_dict = await cache.get(task_uuid)
-        task = Task.from_dict(task_as_dict)
+        task = Task.from_json(task_as_dict)
     except CacheKeyNotFound:
         return "не найдено"
     
-    if task.status != Status.COMPLETED:
+    if task.status != Status.COMPLETED.value:
         return "не найдено"
 
     return task.result

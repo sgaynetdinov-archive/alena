@@ -24,9 +24,9 @@ async def test_status_task__task_uuid_not_found():
 
 @pytest.mark.asyncio
 async def test_status_task():
-    task = Task('reversed string', Status.QUEUE)
+    task = Task('reversed string', Status.QUEUE.value)
     cache = get_cache()
-    task_uuid = await cache.add(task.as_dict())
+    task_uuid = await cache.add('100500', task.as_json())
 
     assert Status.QUEUE.value == await handler(f"status_task {task_uuid}")
 
@@ -39,14 +39,14 @@ async def test_result_task__task_uuid_not_found():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("status, expected", [
-    (Status.QUEUE, "не найдено"),
-    (Status.IN_PROGRESS, "не найдено"),
-    (Status.COMPLETED, "100500"),
+    (Status.QUEUE.value, "не найдено"),
+    (Status.IN_PROGRESS.value, "не найдено"),
+    (Status.COMPLETED.value, "100500"),
 ])
 async def test_result_task__check_status(status, expected):
     task = Task('string', status, expected)
     cache = get_cache()
-    task_uuid = await cache.add(task.as_dict())
+    task_uuid = await cache.add('100500', task.as_json())
 
     got = await handler(f"result_task {task_uuid}")
 
@@ -61,10 +61,11 @@ async def test_create_task():
     assert await queue.size() == 0
 
     task_uuid = await handler(f"create_task reversed_string")
-    task = await cache.get(task_uuid)
+    task = Task.from_json(await cache.get(task_uuid))
 
-    assert task['command'] == "reversed_string"
-    assert task['status'] == Status.QUEUE
+    assert task.command == "reversed_string"
+    assert task.status == Status.QUEUE.value
+    assert task.uuid == task_uuid
     assert await queue.size() == 1
     await queue.pop()
 

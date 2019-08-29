@@ -1,6 +1,3 @@
-from uuid import uuid4
-
-
 class CacheKeyNotFound(Exception):
     pass
 
@@ -19,11 +16,7 @@ class Cache(CacheAbstract):
     def __init__(self):
         self._cache = {}
 
-    def _get_key(self):
-        return str(uuid4())
-
-    async def add(self, data):
-        key = self._get_key()
+    async def add(self, key, data):
         self._cache[key] = data
         return key
 
