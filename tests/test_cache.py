@@ -9,7 +9,7 @@ def cache():
 
 @pytest.mark.asyncio
 async def test_cache(cache):
-    with patch('server.Cache._get_key') as mock:
+    with patch('server.cache.Cache._get_key') as mock:
         mock.return_value = '100500'
 
         assert await cache.add('Payload') == mock()

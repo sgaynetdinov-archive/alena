@@ -1,4 +1,4 @@
-from server import Task
+from server.task import Task
 
 def test_as_json():
     task = Task('reversed string', 'in progress')

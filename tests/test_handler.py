@@ -1,6 +1,8 @@
 import pytest
 
-from server import get_cache, Task, Status
+from server.cache import get_cache
+from server.task import Task
+from server.status import Status
 from server.handler import handler, status_task, result_task, create_task
 
 @pytest.mark.asyncio
