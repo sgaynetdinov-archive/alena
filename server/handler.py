@@ -3,8 +3,10 @@ import asyncio
 from .cache import get_cache, CacheKeyNotFound
 from .task import Task
 from .status import Status
+from .queue import get_queue
 
 cache = get_cache()
+queue = get_queue()
 
 handler_items = {}
 
@@ -17,9 +19,10 @@ def register_handler(handler_name):
     return decorator
 
 @register_handler("create_task")
-def create_task(command):
+async def create_task(command):
     task = Task(command=command, status=Status.QUEUE)
-    task_uuid = cache.add(task.as_dict())
+    task_uuid = await cache.add(task.as_dict())
+    await queue.put(task.as_dict())
     return task_uuid
 
 @register_handler("status_task")

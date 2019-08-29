@@ -4,6 +4,8 @@ from server.cache import get_cache
 from server.task import Task
 from server.status import Status
 from server.handler import handler, status_task, result_task, create_task
+from server.queue import get_queue
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("handler_name,expected",[
@@ -54,8 +56,14 @@ async def test_result_task__check_status(status, expected):
 @pytest.mark.asyncio
 async def test_create_task():
     cache = get_cache()
+    queue = get_queue()
+
+    assert await queue.size() == 0
 
     task_uuid = await handler(f"create_task reversed_string")
-
     task = await cache.get(task_uuid)
+
     assert task['command'] == "reversed_string"
+    assert task['status'] == Status.QUEUE
+    assert await queue.size() == 1
+    await queue.pop()
