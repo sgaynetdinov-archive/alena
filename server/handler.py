@@ -8,7 +8,7 @@ cache = get_cache()
 
 handler_items = {}
 
-def handler(handler_name):
+def register_handler(handler_name):
     def decorator(func):
         handler_items[handler_name] = func
         def wrap(*args, **kwargs):
@@ -16,13 +16,13 @@ def handler(handler_name):
         return wrap
     return decorator
 
-@handler("create_task")
+@register_handler("create_task")
 def create_task(command):
     task = Task(command=command, status=Status.QUEUE)
     task_uuid = cache.add(task.as_dict())
     return task_uuid
 
-@handler("status_task")
+@register_handler("status_task")
 async def status_task(task_uuid):
     try:
         task_as_dict = await cache.get(task_uuid)
@@ -31,7 +31,7 @@ async def status_task(task_uuid):
     except CacheKeyNotFound:
         return "не найдено"
 
-@handler("result_task")
+@register_handler("result_task")
 async def result_task(task_uuid):
     try:
         task_as_dict = await cache.get(task_uuid)
@@ -44,8 +44,10 @@ async def result_task(task_uuid):
 
     return task.result
 
-async def is_valid_handler(handler_name):
-    if handler_name in handler_items:
-        return True
-    return False
+async def handler(handler_name, *args, **kwargs):
+    try:
+        func = handler_items[handler_name]
+        return await func(*args, **kwargs)
+    except KeyError:
+        return "неверная команда"
 

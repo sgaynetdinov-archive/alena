@@ -1,23 +1,20 @@
 import pytest
 
 from server import get_cache, Task, Status
-from server.handler import is_valid_handler, status_task, result_task, create_task
+from server.handler import handler, status_task, result_task, create_task
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("handler_name,expected",[
-    ("create_task", True),
-    ("status_task", True),
-    ("result_task", True),
-    ("all_task", False),
-    ("remove_task", False),
+    ("all_task", "неверная команда"),
+    ("remove_task", "неверная команда"),
 ])
-async def test_is_valid_handler(handler_name, expected):
-    assert await is_valid_handler(handler_name) == expected
+async def test_is_not_valid_handler(handler_name, expected):
+    assert await handler(handler_name) == expected
 
 
 @pytest.mark.asyncio
 async def test_status_task__task_uuid_not_found():
-    got = await status_task('100500') 
+    got = await handler("status_task", "100500") 
     assert got == "не найдено"
 
 
@@ -27,12 +24,12 @@ async def test_status_task():
     cache = get_cache()
     task_uuid = await cache.add(task.as_dict())
 
-    assert Status.QUEUE == await status_task(task_uuid)
+    assert Status.QUEUE == await handler("status_task", task_uuid)
 
 
 @pytest.mark.asyncio
 async def test_result_task__task_uuid_not_found():
-    got = await result_task('100500')
+    got = await handler("result_task", "100500")
     assert got == "не найдено" 
 
 
@@ -47,7 +44,7 @@ async def test_result_task__check_status(status, expected):
     cache = get_cache()
     task_uuid = await cache.add(task.as_dict())
 
-    got = await result_task(task_uuid)
+    got = await handler("result_task", task_uuid)
 
     assert got == expected
 
@@ -56,7 +53,7 @@ async def test_result_task__check_status(status, expected):
 async def test_create_task():
     cache = get_cache()
 
-    task_uuid = await create_task("reversed_string")
+    task_uuid = await handler("create_task", "reversed_string")
 
     task = await cache.get(task_uuid)
     assert task['command'] == "reversed_string"
