@@ -67,3 +67,10 @@ async def test_create_task():
     assert task['status'] == Status.QUEUE
     assert await queue.size() == 1
     await queue.pop()
+
+@pytest.mark.asyncio
+async def test_create_invalid_command():
+    got = await handler(f"create_task not_command")
+
+    assert got == "неверная команда"
+

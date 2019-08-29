@@ -4,6 +4,7 @@ from .cache import get_cache, CacheKeyNotFound
 from .task import Task
 from .status import Status
 from .queue import get_queue
+from .command import command_items
 
 cache = get_cache()
 queue = get_queue()
@@ -20,6 +21,9 @@ def register_handler(handler_name):
 
 @register_handler("create_task")
 async def create_task(command):
+    if command not in command_items:
+        return "неверная команда"
+
     task = Task(command=command, status=Status.QUEUE)
     task_uuid = await cache.add(task.as_dict())
     await queue.put(task.as_dict())
