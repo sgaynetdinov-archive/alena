@@ -27,7 +27,7 @@ async def status_task(task_uuid):
     try:
         task_as_dict = await cache.get(task_uuid)
         task = Task.from_dict(task_as_dict)
-        return task.status
+        return task.status.value
     except CacheKeyNotFound:
         return "не найдено"
 
@@ -44,10 +44,11 @@ async def result_task(task_uuid):
 
     return task.result
 
-async def handler(handler_name, *args, **kwargs):
+async def handler(command):
+    handler_name, *args = command.split()
     try:
         func = handler_items[handler_name]
-        return await func(*args, **kwargs)
+        return await func(*args)
     except KeyError:
         return "неверная команда"
 

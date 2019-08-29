@@ -16,7 +16,7 @@ async def test_is_not_valid_handler(handler_name, expected):
 
 @pytest.mark.asyncio
 async def test_status_task__task_uuid_not_found():
-    got = await handler("status_task", "100500") 
+    got = await handler(f"status_task 100500") 
     assert got == "не найдено"
 
 
@@ -26,12 +26,12 @@ async def test_status_task():
     cache = get_cache()
     task_uuid = await cache.add(task.as_dict())
 
-    assert Status.QUEUE == await handler("status_task", task_uuid)
+    assert Status.QUEUE.value == await handler(f"status_task {task_uuid}")
 
 
 @pytest.mark.asyncio
 async def test_result_task__task_uuid_not_found():
-    got = await handler("result_task", "100500")
+    got = await handler(f"result_task 100500")
     assert got == "не найдено" 
 
 
@@ -46,7 +46,7 @@ async def test_result_task__check_status(status, expected):
     cache = get_cache()
     task_uuid = await cache.add(task.as_dict())
 
-    got = await handler("result_task", task_uuid)
+    got = await handler(f"result_task {task_uuid}")
 
     assert got == expected
 
@@ -55,7 +55,7 @@ async def test_result_task__check_status(status, expected):
 async def test_create_task():
     cache = get_cache()
 
-    task_uuid = await handler("create_task", "reversed_string")
+    task_uuid = await handler(f"create_task reversed_string")
 
     task = await cache.get(task_uuid)
     assert task['command'] == "reversed_string"
