@@ -1,17 +1,18 @@
 import pytest
 
-from server import is_valid_command, status_task, get_cache, Task, Status, result_task
+from server import get_cache, Task, Status
+from server.handler import is_valid_handler, status_task, result_task, create_task
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("command_name,expected",[
+@pytest.mark.parametrize("handler_name,expected",[
     ("create_task", True),
     ("status_task", True),
     ("result_task", True),
     ("all_task", False),
     ("remove_task", False),
 ])
-async def test_is_valid_command(command_name, expected):
-    assert await is_valid_command(command_name) == expected
+async def test_is_valid_handler(handler_name, expected):
+    assert await is_valid_handler(handler_name) == expected
 
 
 @pytest.mark.asyncio
@@ -50,3 +51,12 @@ async def test_result_task__check_status(status, expected):
 
     assert got == expected
 
+
+@pytest.mark.asyncio
+async def test_create_task():
+    cache = get_cache()
+
+    task_uuid = await create_task("reversed_string")
+
+    task = await cache.get(task_uuid)
+    assert task['command'] == "reversed_string"

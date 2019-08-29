@@ -6,21 +6,23 @@ from .status import Status
 
 cache = get_cache()
 
-command_items = {}
+handler_items = {}
 
-def command(command_name):
+def handler(handler_name):
     def decorator(func):
-        command_items[command_name] = func
+        handler_items[handler_name] = func
         def wrap(*args, **kwargs):
             return func(*args, **kwargs)
         return wrap
     return decorator
 
-@command("create_task")
-def create_task():
-    pass
+@handler("create_task")
+def create_task(command):
+    task = Task(command=command, status=Status.QUEUE)
+    task_uuid = cache.add(task.as_dict())
+    return task_uuid
 
-@command("status_task")
+@handler("status_task")
 async def status_task(task_uuid):
     try:
         task_as_dict = await cache.get(task_uuid)
@@ -29,7 +31,7 @@ async def status_task(task_uuid):
     except CacheKeyNotFound:
         return "не найдено"
 
-@command("result_task")
+@handler("result_task")
 async def result_task(task_uuid):
     try:
         task_as_dict = await cache.get(task_uuid)
@@ -42,8 +44,8 @@ async def result_task(task_uuid):
 
     return task.result
 
-async def is_valid_command(command_name):
-    if command_name in command_items:
+async def is_valid_handler(handler_name):
+    if handler_name in handler_items:
         return True
     return False
 
