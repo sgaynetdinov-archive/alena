@@ -12,9 +12,9 @@ def register_command(command_name):
 
 @register_command("reversed_string")
 async def reversed_string():
-    asyncio.sleep(3)
+    await asyncio.sleep(3)
 
 @register_command("transposition")
 async def transposition():
-    asyncio.sleep(7)
+    await asyncio.sleep(7)
 
