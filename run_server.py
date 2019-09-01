@@ -1,5 +1,4 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 
 from server.handler import handler 
 from server.worker import worker 
@@ -23,8 +22,8 @@ async def main(host, port, count_worker):
     print(f'Run server on {host}:{port}')
     print(f'Worker: {count_worker}')
 
-    with ThreadPoolExecutor(max_workers=count_worker) as pool:
-        await server.get_loop().run_in_executor(pool, worker)
+    tasks = [server.get_loop().run_in_executor(None, worker) for i in range(count_worker)]
+    await asyncio.gather(*tasks)
 
     async with server:
         await server.serve_forever()
