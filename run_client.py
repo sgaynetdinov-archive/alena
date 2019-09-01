@@ -24,7 +24,7 @@ def create_task_batch(command, params, host, port):
             status = send('status_task', task_uuid, host, port).decode()
             print(f'{task_uuid} - {status}')
 
-            if status == 'выполено':
+            if status == 'выполнено':
                 task_uuid_items.remove(task_uuid)
                 got = send('result_task', task_uuid, host, port).decode()
                 print(f'{task_uuid} - {got}')
