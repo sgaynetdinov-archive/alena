@@ -16,6 +16,16 @@ async def reversed_string(string):
     return ''.join(reversed(string))
 
 @register_command("transposition")
-async def transposition():
+async def transposition(string):
     await asyncio.sleep(7)
+
+    got = []
+    
+    for i in zip(string[1::2], string[::2]):
+        got.extend(i)
+
+    if len(string) % 2 != 0:
+        got.append(string[-1])
+
+    return ''.join(got)
 
