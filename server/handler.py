@@ -21,12 +21,18 @@ def register_handler(handler_name):
     return decorator
 
 @register_handler("create_task")
-async def create_task(command):
+async def create_task(command, *args):
     if command not in command_items:
         return "неверная команда"
 
+    if len(args) == 0:
+        command_text = command
+    else:
+        args_string = ' '.join(args)
+        command_text = f'{command} {args_string}'
+
     key = str(uuid4())
-    task = Task(command=command, status=Status.QUEUE.value, uuid=key)
+    task = Task(command=command_text, status=Status.QUEUE.value, uuid=key)
     task_uuid = await cache.add(key, task.as_json())
     await queue.put(task.as_json())
     return task_uuid

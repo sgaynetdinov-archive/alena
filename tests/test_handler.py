@@ -60,10 +60,10 @@ async def test_create_task():
 
     assert await queue.size() == 0
 
-    task_uuid = await handler(f"create_task reversed_string")
+    task_uuid = await handler(f"create_task reversed_string abcd")
     task = Task.from_json(await cache.get(task_uuid))
 
-    assert task.command == "reversed_string"
+    assert task.command == "reversed_string abcd"
     assert task.status == Status.QUEUE.value
     assert task.uuid == task_uuid
     assert await queue.size() == 1

@@ -22,8 +22,9 @@ async def _worker():
         task.status = Status.IN_PROGRESS.value 
         await cache.add(task.uuid, task.as_json())
 
-        func = command_items[task.command] 
-        got = await func()
+        command, *args = task.command.split()
+        func = command_items[command] 
+        got = await func(*args)
 
         task.status = Status.COMPLETED.value
         task.result = got
