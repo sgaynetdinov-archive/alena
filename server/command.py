@@ -11,8 +11,9 @@ def register_command(command_name):
     return decorator
 
 @register_command("reversed_string")
-async def reversed_string():
+async def reversed_string(string):
     await asyncio.sleep(3)
+    return ''.join(reversed(string))
 
 @register_command("transposition")
 async def transposition():
